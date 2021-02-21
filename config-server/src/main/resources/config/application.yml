@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    password: ''
+    url: jdbc:h2:mem:testdb
+    username: sa
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  sleuth:
+    sampler:
+      probability: 1
+    span-filter:
+      span-name-patterns-to-skip: buildInfo
+    web:
+      additional-skip-pattern: /v3/api-docs/swagger-config.*|/v3/api-docs/swagger-config|/api-docs/swagger-config.*|/api-docs|/api-docs/swagger-config
+      client:
+        skip-pattern: /instances
+
+  zipkin:
+    base-url: http://localhost:9411/
+    sender:
+      type: kafka

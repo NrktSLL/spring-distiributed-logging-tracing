@@ -1,0 +1,13 @@
+server:
+  port: 8761
+spring:
+  profiles:
+    active: DEV
+  application:
+    name: discovery-server
+
+  cloud:
+    config:
+      profile: native
+      uri: http://localhost:8888
+      fail-fast: true

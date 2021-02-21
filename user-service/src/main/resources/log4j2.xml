@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" name="spring-boot-log-to-kafka">
+    <Properties>
+        <Property name="kafka.topic.logs">user-logs</Property>
+        <Property name="bootstrap.servers">localhost:9092</Property>
+        <Property name="LOG_PATTERN">
+            %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{}{magenta} [%M] %style{%40C}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%xEx}
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <Kafka name="Kafka" topic="${kafka.topic.logs}">
+            <JsonLayout/>
+            <Property name="bootstrap.servers">${bootstrap.servers}</Property>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT"/>
+            </Filters>
+        </Kafka>
+
+        <Async name="KafkaAsync">
+            <AppenderRef ref="Kafka"/>
+        </Async>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="KafkaAsync"/>
+        </Root>
+        <Logger name="org.apache.kafka" level="WARN"/>
+    </Loggers>
+</Configuration>

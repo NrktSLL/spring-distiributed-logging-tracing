@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.6.0
+    container_name: zookeeper
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: bitnami/kafka:2.7.0
+    container_name: kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: "1"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    ports:
+      - 9092:9092
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.27.0
+    container_name: kafdrop
+    ports:
+      - 9000:9000
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    container_name: elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.2
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+    ports:
+      - 5601:5601
+
+  fluentd:
+    image: bitnami/fluentd:1.12.0
+    container_name: fluentd
+    volumes:
+      - ./fluentd.conf:/opt/bitnami/fluentd/conf/fluentd.conf
+    ports:
+      - 24224:24224
+      - 5140:5140
+
+  zipkin:
+    image: openzipkin/zipkin:2.23.2
+    container_name: zipkin
+    environment:
+      STORAGE_TYPE: "elasticsearch"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      ES_HOSTS: "elasticsearch:9200"
+    ports:
+      - 9411:9411
