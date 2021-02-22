@@ -23,7 +23,6 @@
 * Spring Boot log4j2
 * Kafka Log4j Appender
 * Sringdoc OpenApi
-* Spring Boot Hateoas
 * Spring Boot Data JPA
 * Spring Boot Validation
 * Spring Boot Actuator
